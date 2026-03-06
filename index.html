@@ -1027,7 +1027,7 @@
       const formData = new URLSearchParams();
       formData.append('data', JSON.stringify(payload));
 
-      await fetch(WORKER_URL, {
+      await fetch('https://script.google.com/macros/s/AKfycbwBetTA2U2oM-9D72y_W2nXTb3Pxu3Z9xmZRcHuz2KmDiuX4YJ-d_z6cv424aGQfyLC/exec', {
         method:  'POST',
         mode:    'no-cors',       // bypass CORS — risposta opaque ma invio funziona
         body:    formData
