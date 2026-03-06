@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrevApp — Gestisci le tasse degli affitti brevi senza stress</title>
+<meta name="description" content="Calcola la cedolare secca, traccia le spese, ricevi i promemoria F24. Tutto automatico. Pensato per i proprietari italiani di affitti Airbnb.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:       #0D1B2A;
+    --paper:     #F7F3EE;
+    --cream:     #EDE8E0;
+    --accent:    #C8401A;
+    --accent2:   #1A6B4A;
+    --gold:      #B8860B;
+    --muted:     #6B6560;
+    --border:    #D4CEC6;
+    --white:     #FFFFFF;
+    --serif:     'Playfair Display', Georgia, serif;
+    --sans:      'DM Sans', system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--paper);
+    color: var(--ink);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* ── TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 5%;
+    background: rgba(247,243,238,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo { font-family: var(--serif); font-size: 1.4rem; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; }
+  .nav-logo span { color: var(--accent); }
+  .nav-cta {
+    background: var(--ink); color: var(--white);
+    padding: 9px 22px; border-radius: 4px;
+    font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; letter-spacing: 0.02em;
+    transition: background 0.2s;
+  }
+  .nav-cta:hover { background: var(--accent); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 0;
+    padding: 120px 5% 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute; right: -5%; top: 0; bottom: 0; width: 55%;
+    background: var(--cream);
+    clip-path: polygon(8% 0, 100% 0, 100% 100%, 0% 100%);
+    z-index: -1;
+  }
+
+  .hero-left { padding-right: 6%; }
+
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent2); color: var(--white);
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 6px 14px; border-radius: 2px;
+    margin-bottom: 28px;
+    opacity: 0; animation: fadeUp 0.6s 0.1s forwards;
+  }
+
+  .hero-eyebrow::before {
+    content: '●'; font-size: 0.5rem;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.3 } }
+
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.4rem, 4.5vw, 3.8rem);
+    font-weight: 900; line-height: 1.08;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin-bottom: 24px;
+    opacity: 0; animation: fadeUp 0.7s 0.2s forwards;
+  }
+
+  h1 em { font-style: normal; color: var(--accent); }
+
+  .hero-sub {
+    font-size: 1.1rem; color: var(--muted); font-weight: 400;
+    max-width: 480px; line-height: 1.7;
+    margin-bottom: 40px;
+    opacity: 0; animation: fadeUp 0.7s 0.35s forwards;
+  }
+
+  .hero-form {
+    display: flex; gap: 0;
+    max-width: 460px;
+    opacity: 0; animation: fadeUp 0.7s 0.45s forwards;
+  }
+
+  .hero-form input[type="email"] {
+    flex: 1; padding: 14px 18px;
+    border: 2px solid var(--border); border-right: none;
+    border-radius: 4px 0 0 4px;
+    font-family: var(--sans); font-size: 0.95rem;
+    background: var(--white); color: var(--ink);
+    outline: none; transition: border-color 0.2s;
+  }
+  .hero-form input[type="email"]:focus { border-color: var(--ink); }
+  .hero-form input[type="email"]::placeholder { color: #AAA5A0; }
+
+  .btn-primary {
+    background: var(--accent); color: var(--white);
+    padding: 14px 24px; border: none; border-radius: 0 4px 4px 0;
+    font-family: var(--sans); font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-primary:hover { background: #A8340F; transform: translateX(1px); }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .hero-note {
+    margin-top: 12px; font-size: 0.78rem; color: var(--muted);
+    opacity: 0; animation: fadeUp 0.7s 0.55s forwards;
+  }
+
+  /* HERO RIGHT — DASHBOARD MOCKUP */
+  .hero-right {
+    display: flex; align-items: center; justify-content: center;
+    padding-left: 4%;
+    opacity: 0; animation: fadeUp 0.9s 0.4s forwards;
+  }
+
+  .mockup {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 32px 80px rgba(13,27,42,0.14), 0 4px 16px rgba(13,27,42,0.06);
+    width: 100%; max-width: 420px;
+    padding: 28px;
+    border: 1px solid var(--border);
+  }
+
+  .mockup-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 24px; padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .mockup-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--gold));
+  }
+  .mockup-title { font-size: 0.85rem; font-weight: 600; }
+  .mockup-sub { font-size: 0.72rem; color: var(--muted); }
+
+  .mockup-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+
+  .stat-card {
+    background: var(--paper); border-radius: 10px;
+    padding: 14px 16px; border: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  .stat-card.green { background: #EDFAF3; border-color: #B8E6CF; }
+  .stat-card.red   { background: #FEF0EE; border-color: #F5C2BA; }
+
+  .stat-label { font-size: 0.68rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .stat-value { font-family: var(--serif); font-size: 1.6rem; font-weight: 700; line-height: 1; }
+  .stat-card.green .stat-value { color: var(--accent2); }
+  .stat-card.red   .stat-value { color: var(--accent); }
+  .stat-card:not(.green):not(.red) .stat-value { color: var(--ink); }
+  .stat-delta { font-size: 0.7rem; margin-top: 4px; color: var(--muted); }
+
+  .mockup-alert {
+    background: #FFF8E8; border: 1px solid #F0D890;
+    border-radius: 8px; padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px;
+  }
+  .alert-icon { font-size: 1rem; }
+  .alert-text { font-size: 0.78rem; line-height: 1.4; }
+  .alert-text strong { font-weight: 600; color: #7F5C00; }
+
+  .mockup-progress { margin-top: 4px; }
+  .progress-label { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.75rem; color: var(--muted); }
+  .progress-bar { height: 6px; background: var(--cream); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), #2ECC8A); border-radius: 99px; width: 67%; transition: width 1.5s 1s ease-out; }
+
+  /* ── SOCIAL PROOF STRIP ── */
+  .strip {
+    background: var(--ink); color: var(--white);
+    padding: 16px 5%;
+    display: flex; align-items: center; justify-content: center; gap: 40px;
+    flex-wrap: wrap;
+  }
+  .strip-item { font-size: 0.82rem; opacity: 0.75; display: flex; align-items: center; gap: 8px; }
+  .strip-item strong { opacity: 1; font-weight: 600; }
+
+  /* ── PROBLEM SECTION ── */
+  .section { padding: 100px 5%; position: relative; }
+  .section-label {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: var(--serif); font-size: clamp(2rem, 3.5vw, 2.8rem);
+    font-weight: 800; line-height: 1.15; letter-spacing: -0.025em;
+    max-width: 640px; margin-bottom: 20px;
+  }
+  .section-body { font-size: 1rem; color: var(--muted); max-width: 560px; line-height: 1.75; margin-bottom: 48px; }
+
+  .problem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+
+  .problem-card {
+    background: var(--white); padding: 32px 28px;
+    border: 1px solid var(--border);
+    position: relative; overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .problem-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(13,27,42,0.1); z-index: 1; }
+  .problem-card:first-child { border-radius: 8px 0 0 8px; }
+  .problem-card:last-child  { border-radius: 0 8px 8px 0; }
+
+  .problem-num {
+    font-family: var(--serif); font-size: 3.5rem; font-weight: 900;
+    color: var(--cream); line-height: 1;
+    position: absolute; top: 16px; right: 20px;
+  }
+  .problem-icon { font-size: 1.8rem; margin-bottom: 16px; }
+  .problem-q {
+    font-weight: 600; font-size: 0.95rem; line-height: 1.4;
+    margin-bottom: 10px; color: var(--ink);
+  }
+  .problem-a { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── HOW IT WORKS ── */
+  .how-section { background: var(--cream); }
+
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 60px; position: relative; }
+  .steps::before {
+    content: '';
+    position: absolute; top: 28px; left: 12.5%; right: 12.5%; height: 1px;
+    border-top: 2px dashed var(--border); z-index: 0;
+  }
+
+  .step { padding: 0 20px; text-align: center; position: relative; z-index: 1; }
+  .step-num {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--white); border: 2px solid var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-size: 1.3rem; font-weight: 900;
+    margin: 0 auto 20px; position: relative;
+    transition: background 0.2s, color 0.2s;
+  }
+  .step:hover .step-num { background: var(--ink); color: var(--white); }
+  .step-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 8px; }
+  .step-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.55; }
+
+  /* ── FEATURES ── */
+  .features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px 60px; margin-top: 60px; }
+
+  .feature { display: flex; gap: 18px; align-items: flex-start; }
+  .feature-icon {
+    width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0;
+    background: var(--ink); display: flex; align-items: center;
+    justify-content: center; font-size: 1.2rem;
+  }
+  .feature-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
+  .feature-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── PRICING ── */
+  .pricing-section { background: var(--ink); color: var(--white); }
+  .pricing-section .section-title { color: var(--white); }
+  .pricing-section .section-body { color: rgba(255,255,255,0.6); }
+
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 48px; }
+
+  .pricing-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 36px 28px; border-radius: 0;
+    position: relative; transition: background 0.2s;
+  }
+  .pricing-card:first-child { border-radius: 8px 0 0 8px; }
+  .pricing-card:last-child  { border-radius: 0 8px 8px 0; }
+  .pricing-card.featured {
+    background: var(--accent); border-color: var(--accent);
+    transform: translateY(-8px);
+    border-radius: 8px;
+    box-shadow: 0 24px 60px rgba(200,64,26,0.4);
+  }
+
+  .plan-badge {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 2px;
+    display: inline-block; margin-bottom: 16px;
+  }
+  .pricing-card.featured .plan-badge { background: rgba(255,255,255,0.25); }
+
+  .plan-price {
+    font-family: var(--serif); font-size: 3rem; font-weight: 900;
+    line-height: 1; margin-bottom: 4px;
+  }
+  .plan-price span { font-size: 1rem; font-weight: 400; opacity: 0.7; }
+  .plan-name { font-size: 0.8rem; opacity: 0.6; margin-bottom: 24px; }
+  .plan-divider { height: 1px; background: rgba(255,255,255,0.12); margin-bottom: 24px; }
+
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+  .plan-features li { font-size: 0.84rem; display: flex; gap: 10px; align-items: flex-start; opacity: 0.85; }
+  .plan-features li::before { content: '✓'; color: #7EE8A2; font-weight: 700; flex-shrink: 0; }
+  .plan-features li.disabled { opacity: 0.35; }
+  .plan-features li.disabled::before { content: '–'; color: inherit; }
+
+  .btn-plan {
+    width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.3);
+    background: transparent; color: var(--white); border-radius: 4px;
+    font-family: var(--sans); font-weight: 600; font-size: 0.88rem;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-plan:hover { background: rgba(255,255,255,0.12); }
+  .pricing-card.featured .btn-plan { background: var(--white); color: var(--accent); border-color: var(--white); }
+  .pricing-card.featured .btn-plan:hover { background: var(--paper); }
+
+  /* ── SURVEY SECTION ── */
+  .survey-section {
+    background: var(--paper);
+    padding: 100px 5%;
+    border-top: 3px solid var(--ink);
+  }
+
+  .survey-inner {
+    max-width: 760px; margin: 0 auto;
+  }
+
+  .survey-header { margin-bottom: 48px; }
+
+  .survey-form {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .survey-progress {
+    height: 4px; background: var(--cream);
+  }
+  .survey-progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.4s ease;
+  }
+
+  .survey-page { display: none; padding: 40px; }
+  .survey-page.active { display: block; }
+
+  .survey-step-label {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+  }
+
+  .survey-question {
+    font-family: var(--serif); font-size: 1.4rem; font-weight: 700;
+    line-height: 1.3; margin-bottom: 8px; color: var(--ink);
+  }
+  .survey-hint { font-size: 0.85rem; color: var(--muted); margin-bottom: 32px; }
+
+  .options-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
+
+  .option-btn {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px; border: 2px solid var(--border);
+    border-radius: 8px; background: var(--white);
+    cursor: pointer; transition: all 0.15s; text-align: left;
+    font-family: var(--sans);
+  }
+  .option-btn:hover { border-color: var(--ink); background: var(--paper); }
+  .option-btn.selected { border-color: var(--ink); background: var(--ink); color: var(--white); }
+
+  .option-icon { font-size: 1.2rem; flex-shrink: 0; }
+  .option-text { font-size: 0.9rem; font-weight: 500; }
+  .option-sub  { font-size: 0.75rem; opacity: 0.65; margin-top: 1px; }
+
+  .options-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 32px; }
+
+  textarea.survey-input, input.survey-input {
+    width: 100%; padding: 14px 16px;
+    border: 2px solid var(--border); border-radius: 8px;
+    font-family: var(--sans); font-size: 0.95rem; color: var(--ink);
+    background: var(--white); resize: vertical; outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 32px;
+  }
+  textarea.survey-input { min-height: 100px; }
+  textarea.survey-input:focus, input.survey-input:focus { border-color: var(--ink); }
+
+  .email-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .email-group label { font-size: 0.85rem; font-weight: 600; color: var(--ink); }
+
+  .survey-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 24px; border-top: 1px solid var(--border);
+  }
+
+  .btn-back {
+    background: none; border: none; cursor: pointer;
+    font-family: var(--sans); font-size: 0.88rem; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+    transition: color 0.2s;
+  }
+  .btn-back:hover { color: var(--ink); }
+  .btn-back.hidden { visibility: hidden; }
+
+  .btn-next {
+    background: var(--ink); color: var(--white);
+    border: none; padding: 12px 28px; border-radius: 6px;
+    font-family: var(--sans); font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; transition: background 0.2s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .btn-next:hover { background: var(--accent); }
+  .btn-next:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-next.submit-btn { background: var(--accent2); }
+  .btn-next.submit-btn:hover { background: #155C3D; }
+
+  /* THANK YOU */
+  .thankyou-page {
+    display: none; padding: 60px 40px;
+    text-align: center;
+  }
+  .thankyou-page.active { display: block; }
+
+  .thankyou-icon { font-size: 3.5rem; margin-bottom: 24px; animation: bounceIn 0.6s; }
+  @keyframes bounceIn {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .thankyou-title {
+    font-family: var(--serif); font-size: 2rem; font-weight: 800;
+    margin-bottom: 12px;
+  }
+  .thankyou-sub { font-size: 1rem; color: var(--muted); max-width: 440px; margin: 0 auto 32px; line-height: 1.7; }
+  .thankyou-sharing {
+    background: var(--cream); border-radius: 8px; padding: 20px 24px;
+    max-width: 440px; margin: 0 auto;
+    font-size: 0.85rem; color: var(--muted); line-height: 1.6;
+  }
+  .thankyou-sharing strong { color: var(--ink); font-weight: 600; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink); color: rgba(255,255,255,0.5);
+    padding: 40px 5%;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.8rem; flex-wrap: wrap; gap: 16px;
+  }
+  .footer-logo { font-family: var(--serif); font-size: 1.2rem; font-weight: 700; color: var(--white); }
+  .footer-logo span { color: var(--accent); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0; transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding: 100px 5% 60px; }
+    .hero::after { display: none; }
+    .hero-right { margin-top: 40px; }
+    .problem-grid { grid-template-columns: 1fr; }
+    .problem-card:first-child,
+    .problem-card:last-child { border-radius: 0; }
+    .problem-card:first-child { border-radius: 8px 8px 0 0; }
+    .problem-card:last-child { border-radius: 0 0 8px 8px; }
+    .steps { grid-template-columns: 1fr 1fr; }
+    .steps::before { display: none; }
+    .features-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; gap: 16px; }
+    .pricing-card.featured { transform: none; }
+    .pricing-card:first-child,
+    .pricing-card:last-child { border-radius: 8px; }
+    .options-row { grid-template-columns: 1fr; }
+    .hero-form { flex-direction: column; }
+    .hero-form input[type="email"] { border-right: 2px solid var(--border); border-radius: 4px; }
+    .btn-primary { border-radius: 4px; }
+    .strip { gap: 20px; }
+  }
+
+  @media (max-width: 600px) {
+    .steps { grid-template-columns: 1fr; }
+    .survey-page { padding: 28px 20px; }
+    .thankyou-page { padding: 40px 20px; }
+  }
+
+  /* Counter animation */
+  .counter { display: inline-block; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Brev<span>App</span></div>
+  <a href="#survey" class="nav-cta">Entra in lista →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Nuovo · Affitti brevi in Italia</div>
+    <h1>Le tasse del tuo Airbnb,<br><em>finalmente chiare.</em></h1>
+    <p class="hero-sub">
+      Calcola la cedolare secca, traccia le spese deducibili, ricevi i promemoria F24 in tempo — senza commercialista, senza Excel, senza stress.
+    </p>
+    <form class="hero-form" onsubmit="handleHeroEmail(event)">
+      <input type="email" id="hero-email" placeholder="La tua email" required autocomplete="email">
+      <button type="submit" class="btn-primary">Entra in lista →</button>
+    </form>
+    <p class="hero-note">✓ Gratuito · ✓ Nessuna carta di credito · ✓ Pensato per proprietari italiani</p>
+  </div>
+
+  <div class="hero-right">
+    <div class="mockup">
+      <div class="mockup-header">
+        <div class="mockup-avatar"></div>
+        <div>
+          <div class="mockup-title">Appartamento Liguria</div>
+          <div class="mockup-sub">Stagione 2026 · Aggiornato ora</div>
+        </div>
+      </div>
+
+      <div class="mockup-stat-grid">
+        <div class="stat-card green">
+          <div class="stat-label">Netto stimato</div>
+          <div class="stat-value">€7.840</div>
+          <div class="stat-delta">↑ +12% vs 2025</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Cedolare dovuta</div>
+          <div class="stat-value">€2.100</div>
+          <div class="stat-delta">Aliquota 21% · 1° imm.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Prossima scadenza</div>
+          <div class="stat-value" style="font-size:1.2rem;color:var(--gold);padding-top:4px">30 Giugno</div>
+          <div class="stat-delta">Saldo F24 · 74 giorni</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Spese dedotte</div>
+          <div class="stat-value" style="font-size:1.3rem;padding-top:4px">€1.260</div>
+          <div class="stat-delta">Pulizie · Commissioni OTA</div>
+        </div>
+      </div>
+
+      <div class="mockup-alert">
+        <span class="alert-icon">⏰</span>
+        <div class="alert-text"><strong>Promemoria:</strong> Acconto cedolare secca entro il 30 novembre. Stima: €1.050</div>
+      </div>
+
+      <div class="mockup-progress">
+        <div class="progress-label"><span>Occupazione 2026</span><span>67%</span></div>
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STRIP -->
+<div class="strip">
+  <div class="strip-item">🏠 <span>Pensato per <strong>proprietari privati</strong> 1–2 immobili</span></div>
+  <div class="strip-item">🇮🇹 <span>Normativa italiana <strong>aggiornata 2026</strong></span></div>
+  <div class="strip-item">🔒 <span>I tuoi dati <strong>restano tuoi</strong></span></div>
+  <div class="strip-item">💶 <span>Alternativa a <strong>€500+ di commercialista</strong></span></div>
+</div>
+
+<!-- PROBLEM -->
+<section class="section">
+  <div class="section-label">Il problema</div>
+  <h2 class="section-title" style="font-family:var(--serif);font-size:clamp(2rem,3.5vw,2.8rem);font-weight:800;line-height:1.15;letter-spacing:-0.025em;margin-bottom:20px;">Gestire le tasse di Airbnb è diventato un labirinto</h2>
+  <p class="section-body">Con la Legge di Bilancio 2026, le regole sono cambiate ancora. Aliquote diverse, CIN obbligatorio, scadenze F24, spese deducibili. La maggior parte dei proprietari non sa esattamente quanto guadagna netto.</p>
+
+  <div class="problem-grid reveal">
+    <div class="problem-card">
+      <div class="problem-num">01</div>
+      <div class="problem-icon">🤔</div>
+      <div class="problem-q">Sai esattamente quanto guadagni netto dalla tua casa?</div>
+      <div class="problem-a">Airbnb ti mostra l'incassato lordo. Ma dopo cedolare secca, spese di pulizia, commissioni OTA e manutenzioni — quanto ti resta davvero?</div>
+    </div>
+    <div class="problem-card">
+      <div class="problem-num">02</div>
+      <div class="problem-icon">📅</div>
+      <div class="problem-q">Ti ricordi sempre le scadenze F24 senza dimenticarti nulla?</div>
+      <div class="problem-a">L'acconto di novembre e il saldo di giugno. Dimenticarli costa sanzioni fino al 240% delle imposte dovute. Un promemoria sul telefono non basta.</div>
+    </div>
+    <div class="problem-card">
+      <div class="problem-num">03</div>
+      <div class="problem-icon">📄</div>
+      <div class="problem-q">Hai tutto pronto per il commercialista ogni marzo?</div>
+      <div class="problem-a">Raccogliere ricevute sparse, export Airbnb, fatture di pulizia, nota spese utenze… ogni anno lo stesso caos. E il commercialista fattura comunque.</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section how-section">
+  <div class="reveal">
+    <div class="section-label">Come funziona</div>
+    <h2 class="section-title" style="font-family:var(--serif);font-size:clamp(2rem,3.5vw,2.8rem);font-weight:800;line-height:1.15;letter-spacing:-0.025em;margin-bottom:20px;">Da zero al tuo netto reale in 5 minuti</h2>
+  </div>
+  <div class="steps reveal">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Aggiungi il tuo immobile</div>
+      <div class="step-desc">Inserisci CIN, indirizzo e aliquota cedolare. BrevApp capisce da solo se sei al 21% o 26%.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Importa le prenotazioni</div>
+      <div class="step-desc">Carica il CSV di Airbnb o inserisci manualmente. Ogni prenotazione calcola l'imponibile automaticamente.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Registra le spese</div>
+      <div class="step-desc">Pulizie, utenze, commissioni OTA, manutenzioni. BrevApp sa cosa è deducibile e cosa no.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-title">Ricevi il quadro completo</div>
+      <div class="step-desc">Netto reale, cedolare dovuta, prossime scadenze F24 e report PDF per il commercialista.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section">
+  <div class="section-label reveal">Funzionalità</div>
+  <h2 class="section-title reveal" style="font-family:var(--serif);font-size:clamp(2rem,3.5vw,2.8rem);font-weight:800;line-height:1.15;letter-spacing:-0.025em;margin-bottom:16px;">Tutto quello che ti serve,<br>niente di quello che non ti serve</h2>
+  <p class="section-body reveal">Costruito per chi ha 1–2 appartamenti e vuole controllo fiscale senza diventare un esperto di tributi.</p>
+
+  <div class="features-grid reveal">
+    <div class="feature">
+      <div class="feature-icon">🧮</div>
+      <div>
+        <div class="feature-title">Calcolo cedolare automatico</div>
+        <div class="feature-desc">Applica il 21% o il 26% in base al numero di immobili e ti mostra esattamente quanto devi all'Erario a fine anno.</div>
+      </div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">⏰</div>
+      <div>
+        <div class="feature-title">Promemoria F24 intelligenti</div>
+        <div class="feature-desc">Scadenze precompilate (acconto novembre, saldo giugno) con notifiche email e stima dell'importo settimane prima.</div>
+      </div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">💸</div>
+      <div>
+        <div class="feature-title">Tracker spese deducibili</div>
+        <div class="feature-desc">Categorizza automaticamente pulizie, commissioni OTA, manutenzioni, utenze. Ogni euro deducibile viene catturato.</div>
+      </div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📊</div>
+      <div>
+        <div class="feature-title">Dashboard netto reale</div>
+        <div class="feature-desc">Non solo l'incassato lordo di Airbnb — il tuo guadagno netto dopo tasse e spese, aggiornato in tempo reale.</div>
+      </div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📋</div>
+      <div>
+        <div class="feature-title">Export PDF per il commercialista</div>
+        <div class="feature-desc">Report annuale completo con entrate, spese, cedolare dovuta. Consegna un foglio invece di una cartella.</div>
+      </div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🔄</div>
+      <div>
+        <div class="feature-title">Aggiornamenti normativi automatici</div>
+        <div class="feature-desc">La legge cambia ogni anno. BrevApp si aggiorna e ti avvisa se qualcosa impatta la tua situazione fiscale.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section pricing-section">
+  <div class="section-label reveal" style="color:rgba(255,255,255,0.5)">Pricing</div>
+  <h2 class="section-title reveal" style="color:var(--white);font-family:var(--serif);font-size:clamp(2rem,3.5vw,2.8rem);font-weight:800;line-height:1.15;letter-spacing:-0.025em;margin-bottom:16px;">Meno di un caffè al mese.<br>Vale più di un commercialista.</h2>
+  <p class="section-body reveal" style="color:rgba(255,255,255,0.55)">Il commercialista per la dichiarazione degli affitti brevi costa €500–1.500/anno. BrevApp gestisce la parte operativa per una frazione di quel costo.</p>
+
+  <div class="pricing-grid reveal">
+    <div class="pricing-card">
+      <div class="plan-badge">Free</div>
+      <div class="plan-price">€0<span>/mese</span></div>
+      <div class="plan-name">Per iniziare</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>1 immobile</li>
+        <li>Calcolo cedolare base</li>
+        <li>Storico 3 mesi</li>
+        <li class="disabled">Export PDF</li>
+        <li class="disabled">Promemoria F24</li>
+        <li class="disabled">Import CSV Airbnb</li>
+      </ul>
+      <button class="btn-plan" onclick="scrollToSurvey()">Entra in lista</button>
+    </div>
+
+    <div class="pricing-card featured">
+      <div class="plan-badge">⭐ Più scelto</div>
+      <div class="plan-price">€4,90<span>/mese</span></div>
+      <div class="plan-name">Host · Fatturazione annuale</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>Fino a 2 immobili</li>
+        <li>Calcolo cedolare avanzato</li>
+        <li>Storico illimitato</li>
+        <li>Export PDF</li>
+        <li>Promemoria F24</li>
+        <li>Tassa di soggiorno per Comune</li>
+      </ul>
+      <button class="btn-plan" onclick="scrollToSurvey()">Entra in lista →</button>
+    </div>
+
+    <div class="pricing-card">
+      <div class="plan-badge">Host Pro</div>
+      <div class="plan-price">€9,90<span>/mese</span></div>
+      <div class="plan-name">Per chi scala</div>
+      <div class="plan-divider"></div>
+      <ul class="plan-features">
+        <li>Immobili illimitati</li>
+        <li>Import automatico CSV Airbnb</li>
+        <li>Simulatore "e se" fiscale</li>
+        <li>Export PDF avanzato</li>
+        <li>Notifiche prioritarie</li>
+        <li>Report per property manager</li>
+      </ul>
+      <button class="btn-plan" onclick="scrollToSurvey()">Entra in lista</button>
+    </div>
+  </div>
+</section>
+
+<!-- SURVEY -->
+<section class="survey-section" id="survey">
+  <div class="survey-inner">
+    <div class="survey-header reveal">
+      <div class="section-label">Survey — 2 minuti</div>
+      <h2 class="section-title" style="font-family:var(--serif);font-size:clamp(1.8rem,3vw,2.5rem);font-weight:800;line-height:1.15;letter-spacing:-0.025em;margin-bottom:12px;">Aiutaci a costruire<br>la versione giusta per te</h2>
+      <p style="font-size:0.95rem;color:var(--muted);max-width:520px;line-height:1.7;">5 domande veloci. In cambio: accesso gratuito alla beta + i risultati aggregati della ricerca prima del lancio.</p>
+    </div>
+
+    <div class="survey-form">
+      <div class="survey-progress">
+        <div class="survey-progress-fill" id="progress-bar" style="width: 0%"></div>
+      </div>
+
+      <!-- PAGE 1 -->
+      <div class="survey-page active" id="page-1">
+        <div class="survey-step-label">Domanda 1 di 5</div>
+        <div class="survey-question">Quanti immobili affitti su Airbnb o Booking?</div>
+        <div class="survey-hint">Conta anche le camere affittate separatamente nello stesso appartamento come 1 immobile.</div>
+        <div class="options-grid" id="q1-options">
+          <button class="option-btn" onclick="selectOption('q1', this, '1 immobile')">
+            <span class="option-icon">🏠</span>
+            <div><div class="option-text">1 immobile</div><div class="option-sub">Solo 1 appartamento o casa</div></div>
+          </button>
+          <button class="option-btn" onclick="selectOption('q1', this, '2 immobili')">
+            <span class="option-icon">🏘️</span>
+            <div><div class="option-text">2 immobili</div><div class="option-sub">La soglia massima della cedolare secca</div></div>
+          </button>
+          <button class="option-btn" onclick="selectOption('q1', this, '3 o più')">
+            <span class="option-icon">🏢</span>
+            <div><div class="option-text">3 o più</div><div class="option-sub">Attività imprenditoriale dal 2026</div></div>
+          </button>
+          <button class="option-btn" onclick="selectOption('q1', this, 'Sto per iniziare')">
+            <span class="option-icon">🔑</span>
+            <div><div class="option-text">Sto per iniziare</div><div class="option-sub">Non ho ancora avviato l'attività</div></div>
+          </button>
+        </div>
+        <div class="survey-nav">
+          <button class="btn-back hidden">← Indietro</button>
+          <button class="btn-next" id="next-1" onclick="nextPage(2)" disabled>Avanti →</button>
+        </div>
+      </div>
+
+      <!-- PAGE 2 -->
+      <div class="survey-page" id="page-2">
+        <div class="survey-step-label">Domanda 2 di 5</div>
+        <div class="survey-question">Come gestisci attualmente le tasse dei tuoi affitti brevi?</div>
+        <div class="survey-hint">Scegli l'opzione più vicina alla tua situazione attuale.</div>
+        <div class="options-grid" id="q2-options">
+          <button class="option-btn" onclick="selectOption('q2', this, 'Commercialista')">
+            <span class="option-icon">👨‍💼</span>
+            <div><div class="option-text">Commercialista</div><div class="option-sub">Delego tutto al professionista</div></div>
+          </button>
+          <button class="option-btn" onclick="selectOption('q2', this, 'Excel fai-da-te')">
+            <span class="option-icon">📊</span>
+            <div><div class="option-text">Excel / Fogli Google</div><div class="option-sub">Mi arrangio con i fogli di calcolo</div></div>
+          </button>
+          <button class="option-btn" onclick="selectOption('q2', this, 'Nulla')">
+            <span class="option-icon">🤷</span>
+            <div><div class="option-text">Nulla di strutturato</div><div class="option-sub">Un po' di buona memoria e fortuna</div></div>
+          </button>
+          <button class="option-btn" onclick="selectOption('q2', this, 'App esterna')">
+            <span class="option-icon">📱</span>
+            <div><div class="option-text">Un'app / software</div><div class="option-sub">Uso già uno strumento dedicato</div></div>
+          </button>
+        </div>
+        <div class="survey-nav">
+          <button class="btn-back" onclick="prevPage(1)">← Indietro</button>
+          <button class="btn-next" id="next-2" onclick="nextPage(3)" disabled>Avanti →</button>
+        </div>
+      </div>
+
+      <!-- PAGE 3 -->
+      <div class="survey-page" id="page-3">
+        <div class="survey-step-label">Domanda 3 di 5</div>
+        <div class="survey-question">Qual è la tua frustrazione principale nella gestione fiscale?</div>
+        <div class="survey-hint">Aiutaci a capire dove senti più dolore. Puoi scegliere 1 opzione.</div>
+        <div class="options-grid" id="q3-options">
+          <button class="option-btn" onclick="selectOption('q3', this, 'Non so quanto guadagno netto')">
+            <span class="option-icon">💸</span>
+            <div><div class="option-text">Non so quanto guadagno netto</div><div class="option-sub">Airbnb mostra il lordo, ma non il reale</div></div>
+          </button>
+          <button class="option-btn" onclick="selectOption('q3', this, 'Scadenze F24')">
+            <span class="option-icon">📅</span>
+            <div><div class="option-text">Paura di dimenticare le scadenze</div><div class="option-sub">Acconto novembre, saldo giugno…</div></div>
+          </button>
+          <button class="option-btn" onclick="selectOption('q3', this, 'Raccogliere documentazione')">
+            <span class="option-icon">📁</span>
+            <div><div class="option-text">Raccogliere tutta la documentazione</div><div class="option-sub">Ricevute, fatture, export Airbnb dispersi ovunque</div></div>
+          </button>
+          <button class="option-btn" onclick="selectOption('q3', this, 'Capire le regole')">
+            <span class="option-icon">⚖️</span>
+            <div><div class="option-text">Capire le regole che cambiano ogni anno</div><div class="option-sub">CIN, aliquote, soglie imprenditoriali…</div></div>
+          </button>
+        </div>
+        <div class="survey-nav">
+          <button class="btn-back" onclick="prevPage(2)">← Indietro</button>
+          <button class="btn-next" id="next-3" onclick="nextPage(4)" disabled>Avanti →</button>
+        </div>
+      </div>
+
+      <!-- PAGE 4 -->
+      <div class="survey-page" id="page-4">
+        <div class="survey-step-label">Domanda 4 di 5</div>
+        <div class="survey-question">Pagheresti €4,90/mese per gestire tutto questo automaticamente?</div>
+        <div class="survey-hint">Nessun impegno. Questa è la fase di ricerca — vogliamo capire se c'è valore reale.</div>
+        <div class="options-row" id="q4-options">
+          <button class="option-btn" onclick="selectOption('q4', this, 'Sì, sicuramente')">
+            <span class="option-icon">✅</span>
+            <div><div class="option-text">Sì, sicuramente</div><div class="option-sub">Vale già il prezzo</div></div>
+          </button>
+          <button class="option-btn" onclick="selectOption('q4', this, 'Probabilmente sì')">
+            <span class="option-icon">🤔</span>
+            <div><div class="option-text">Probabilmente sì</div><div class="option-sub">Dipende dalle funzioni</div></div>
+          </button>
+          <button class="option-btn" onclick="selectOption('q4', this, 'Forse, devo vedere')">
+            <span class="option-icon">⚖️</span>
+            <div><div class="option-text">Forse, devo vedere</div><div class="option-sub">Voglio provarla prima</div></div>
+          </button>
+          <button class="option-btn" onclick="selectOption('q4', this, 'No')">
+            <span class="option-icon">❌</span>
+            <div><div class="option-text">No</div><div class="option-sub">Non è per me</div></div>
+          </button>
+        </div>
+        <div class="survey-nav">
+          <button class="btn-back" onclick="prevPage(3)">← Indietro</button>
+          <button class="btn-next" id="next-4" onclick="nextPage(5)" disabled>Avanti →</button>
+        </div>
+      </div>
+
+      <!-- PAGE 5 — EMAIL -->
+      <div class="survey-page" id="page-5">
+        <div class="survey-step-label">Domanda 5 di 5</div>
+        <div class="survey-question">Vuoi essere tra i primi a ricevere l'accesso beta?</div>
+        <div class="survey-hint">Inserisci la tua email per entrare in lista. Riceverai anche i risultati aggregati di questa ricerca.</div>
+        <div class="email-group">
+          <label for="survey-email">La tua email</label>
+          <input type="email" id="survey-email" class="survey-input" placeholder="nome@email.com" style="margin-bottom:0" oninput="checkEmail()">
+        </div>
+        <div style="margin-bottom:24px;font-size:0.78rem;color:var(--muted);margin-top:8px;">
+          🔒 Niente spam. Solo aggiornamenti su BrevApp. Puoi cancellarti in un click.
+        </div>
+        <div style="background:var(--cream);border-radius:8px;padding:16px 18px;margin-bottom:24px;">
+          <div style="font-size:0.82rem;font-weight:600;margin-bottom:8px;">Hai qualcosa da aggiungere? (opzionale)</div>
+          <textarea class="survey-input" id="survey-notes" placeholder="Es: 'Vorrei anche la gestione dell'imposta di soggiorno di Rapallo' o qualsiasi altra cosa..." style="margin-bottom:0;min-height:80px;background:var(--white)"></textarea>
+        </div>
+        <div class="survey-nav">
+          <button class="btn-back" onclick="prevPage(4)">← Indietro</button>
+          <button class="btn-next submit-btn" id="submit-btn" onclick="submitSurvey()" disabled>
+            ✓ Invia e prenota il posto
+          </button>
+        </div>
+      </div>
+
+      <!-- THANK YOU -->
+      <div class="thankyou-page" id="thankyou">
+        <div class="thankyou-icon">🎉</div>
+        <div class="thankyou-title">Sei in lista!</div>
+        <p class="thankyou-sub">Grazie per aver dedicato 2 minuti. Riceverai un'email con i risultati della ricerca e l'accesso prioritario alla beta non appena sarà pronta.</p>
+        <div class="thankyou-sharing">
+          <strong>Conosci altri host Airbnb in Italia?</strong><br>
+          Condividi questo link con chi potrebbe trovarlo utile. Più feedback raccogliamo, migliore sarà il prodotto finale.
+          <br><br>
+          <strong style="color:var(--accent)">brevapp.it</strong> (prossimamente)
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Brev<span>App</span></div>
+  <div>© 2026 BrevApp · Fatto in Italia 🇮🇹</div>
+  <div>Non è consulenza fiscale. Per casi specifici consulta un professionista.</div>
+</footer>
+
+<script>
+  // ── SURVEY STATE ──
+  const answers = { q1: null, q2: null, q3: null, q4: null };
+  const totalPages = 5;
+
+  function updateProgress(page) {
+    const pct = ((page - 1) / totalPages) * 100;
+    document.getElementById('progress-bar').style.width = pct + '%';
+  }
+
+  function selectOption(question, btn, value) {
+    // Deselect siblings
+    btn.closest('.options-grid, .options-row')
+       .querySelectorAll('.option-btn')
+       .forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    answers[question] = value;
+    // Enable next button
+    const pageNum = question.replace('q','');
+    const nextBtn = document.getElementById('next-' + pageNum);
+    if (nextBtn) nextBtn.disabled = false;
+  }
+
+  function nextPage(n) {
+    document.querySelectorAll('.survey-page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + n).classList.add('active');
+    updateProgress(n);
+    document.querySelector('.survey-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function prevPage(n) {
+    document.querySelectorAll('.survey-page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + n).classList.add('active');
+    updateProgress(n);
+  }
+
+  function checkEmail() {
+    const email = document.getElementById('survey-email').value;
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    document.getElementById('submit-btn').disabled = !valid;
+  }
+
+  function submitSurvey() {
+    const email = document.getElementById('survey-email').value;
+    const notes = document.getElementById('survey-notes').value;
+
+    // In produzione: invia a backend / Airtable / Google Sheets via fetch()
+    // Esempio payload:
+    const payload = {
+      email,
+      q1_immobili: answers.q1,
+      q2_gestione: answers.q2,
+      q3_frustrazione: answers.q3,
+      q4_pagherebbe: answers.q4,
+      note: notes,
+      timestamp: new Date().toISOString(),
+      source: 'landing-page'
+    };
+    console.log('Survey payload:', payload);
+    // fetch('/api/survey', { method: 'POST', body: JSON.stringify(payload) ... });
+
+    // Show thank you
+    document.querySelectorAll('.survey-page').forEach(p => p.classList.remove('active'));
+    document.getElementById('thankyou').classList.add('active');
+    document.getElementById('progress-bar').style.width = '100%';
+  }
+
+  // ── HERO EMAIL ──
+  function handleHeroEmail(e) {
+    e.preventDefault();
+    const email = document.getElementById('hero-email').value;
+    // Pre-fill survey email
+    document.getElementById('survey-email').value = email;
+    // Scroll to survey
+    document.getElementById('survey').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function scrollToSurvey() {
+    document.getElementById('survey').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ── SCROLL REVEAL ──
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  revealEls.forEach(el => observer.observe(el));
+
+  // ── PROGRESS BAR ANIMATE ON LOAD ──
+  window.addEventListener('load', () => {
+    updateProgress(1);
+  });
+</script>
+</body>
+</html>
