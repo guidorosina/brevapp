@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BrevApp — Gestisci le tasse degli affitti brevi senza stress</title>
-<meta name="description" content="Calcola la cedolare secca, traccia le spese, ricevi i promemoria F24. Tutto automatico. Pensato per i proprietari italiani di affitti Airbnb.">
+<meta name="description" content="Calcola la cedolare secca, traccia le spese, ricevi i promemoria F24. Tutto automatico. Pensato per i proprietari italiani di affitti brevi — Airbnb, Booking.com o affitto diretto.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -540,7 +540,7 @@
 <section class="hero">
   <div class="hero-left">
     <div class="hero-eyebrow">Nuovo · Affitti brevi in Italia</div>
-    <h1>Le tasse del tuo Airbnb,<br><em>finalmente chiare.</em></h1>
+    <h1>Le tasse dei tuoi affitti brevi,<br><em>finalmente chiare.</em></h1>
     <p class="hero-sub">
       Calcola la cedolare secca, traccia le spese deducibili, ricevi i promemoria F24 in tempo — senza commercialista, senza Excel, senza stress.
     </p>
@@ -600,15 +600,15 @@
 <!-- STRIP -->
 <div class="strip">
   <div class="strip-item">🏠 <span>Pensato per <strong>proprietari privati</strong> 1–2 immobili</span></div>
+  <div class="strip-item">🌐 <span><strong>Airbnb, Booking.com</strong> o affitto diretto</span></div>
   <div class="strip-item">🇮🇹 <span>Normativa italiana <strong>aggiornata 2026</strong></span></div>
-  <div class="strip-item">🔒 <span>I tuoi dati <strong>restano tuoi</strong></span></div>
   <div class="strip-item">💶 <span>Alternativa a <strong>€500+ di commercialista</strong></span></div>
 </div>
 
 <!-- PROBLEM -->
 <section class="section">
   <div class="section-label">Il problema</div>
-  <h2 class="section-title" style="font-family:var(--serif);font-size:clamp(2rem,3.5vw,2.8rem);font-weight:800;line-height:1.15;letter-spacing:-0.025em;margin-bottom:20px;">Gestire le tasse di Airbnb è diventato un labirinto</h2>
+  <h2 class="section-title" style="font-family:var(--serif);font-size:clamp(2rem,3.5vw,2.8rem);font-weight:800;line-height:1.15;letter-spacing:-0.025em;margin-bottom:20px;">Gestire le tasse degli affitti brevi è diventato un labirinto</h2>
   <p class="section-body">Con la Legge di Bilancio 2026, le regole sono cambiate ancora. Aliquote diverse, CIN obbligatorio, scadenze F24, spese deducibili. La maggior parte dei proprietari non sa esattamente quanto guadagna netto.</p>
 
   <div class="problem-grid reveal">
@@ -616,7 +616,7 @@
       <div class="problem-num">01</div>
       <div class="problem-icon">🤔</div>
       <div class="problem-q">Sai esattamente quanto guadagni netto dalla tua casa?</div>
-      <div class="problem-a">Airbnb ti mostra l'incassato lordo. Ma dopo cedolare secca, spese di pulizia, commissioni OTA e manutenzioni — quanto ti resta davvero?</div>
+      <div class="problem-a">Le piattaforme ti mostrano l'incassato lordo. Ma dopo cedolare secca, spese di pulizia, commissioni OTA e manutenzioni — quanto ti resta davvero?</div>
     </div>
     <div class="problem-card">
       <div class="problem-num">02</div>
@@ -628,7 +628,7 @@
       <div class="problem-num">03</div>
       <div class="problem-icon">📄</div>
       <div class="problem-q">Hai tutto pronto per il commercialista ogni marzo?</div>
-      <div class="problem-a">Raccogliere ricevute sparse, export Airbnb, fatture di pulizia, nota spese utenze… ogni anno lo stesso caos. E il commercialista fattura comunque.</div>
+      <div class="problem-a">Raccogliere ricevute sparse, export dalle piattaforme, fatture di pulizia, nota spese utenze… ogni anno lo stesso caos. E il commercialista fattura comunque.</div>
     </div>
   </div>
 </section>
@@ -648,7 +648,7 @@
     <div class="step">
       <div class="step-num">2</div>
       <div class="step-title">Importa le prenotazioni</div>
-      <div class="step-desc">Carica il CSV di Airbnb o inserisci manualmente. Ogni prenotazione calcola l'imponibile automaticamente.</div>
+      <div class="step-desc">Carica il CSV di Airbnb o Booking.com, o inserisci manualmente. Ogni prenotazione calcola l'imponibile automaticamente.</div>
     </div>
     <div class="step">
       <div class="step-num">3</div>
@@ -695,7 +695,7 @@
       <div class="feature-icon">📊</div>
       <div>
         <div class="feature-title">Dashboard netto reale</div>
-        <div class="feature-desc">Non solo l'incassato lordo di Airbnb — il tuo guadagno netto dopo tasse e spese, aggiornato in tempo reale.</div>
+        <div class="feature-desc">Non solo l'incassato lordo delle piattaforme — il tuo guadagno netto dopo tasse e spese, aggiornato in tempo reale.</div>
       </div>
     </div>
     <div class="feature">
@@ -733,7 +733,7 @@
         <li>Storico 3 mesi</li>
         <li class="disabled">Export PDF</li>
         <li class="disabled">Promemoria F24</li>
-        <li class="disabled">Import CSV Airbnb</li>
+        <li class="disabled">Import CSV piattaforme</li>
       </ul>
       <button class="btn-plan" onclick="scrollToSurvey()">Entra in lista</button>
     </div>
@@ -761,7 +761,7 @@
       <div class="plan-divider"></div>
       <ul class="plan-features">
         <li>Immobili illimitati</li>
-        <li>Import automatico CSV Airbnb</li>
+        <li>Import automatico CSV (Airbnb, Booking.com)</li>
         <li>Simulatore "e se" fiscale</li>
         <li>Export PDF avanzato</li>
         <li>Notifiche prioritarie</li>
@@ -852,7 +852,7 @@
         <div class="options-grid" id="q3-options">
           <button class="option-btn" onclick="selectOption('q3', this, 'Non so quanto guadagno netto')">
             <span class="option-icon">💸</span>
-            <div><div class="option-text">Non so quanto guadagno netto</div><div class="option-sub">Airbnb mostra il lordo, ma non il reale</div></div>
+            <div><div class="option-text">Non so quanto guadagno netto</div><div class="option-sub">Le piattaforme mostrano il lordo, non il reale</div></div>
           </button>
           <button class="option-btn" onclick="selectOption('q3', this, 'Scadenze F24')">
             <span class="option-icon">📅</span>
@@ -860,7 +860,7 @@
           </button>
           <button class="option-btn" onclick="selectOption('q3', this, 'Raccogliere documentazione')">
             <span class="option-icon">📁</span>
-            <div><div class="option-text">Raccogliere tutta la documentazione</div><div class="option-sub">Ricevute, fatture, export Airbnb dispersi ovunque</div></div>
+            <div><div class="option-text">Raccogliere tutta la documentazione</div><div class="option-sub">Ricevute, fatture, export dalle piattaforme dispersi ovunque</div></div>
           </button>
           <button class="option-btn" onclick="selectOption('q3', this, 'Capire le regole')">
             <span class="option-icon">⚖️</span>
@@ -932,7 +932,7 @@
         <div class="thankyou-title">Sei in lista!</div>
         <p class="thankyou-sub">Grazie per aver dedicato 2 minuti. Riceverai un'email con i risultati della ricerca e l'accesso prioritario alla beta non appena sarà pronta.</p>
         <div class="thankyou-sharing">
-          <strong>Conosci altri host Airbnb in Italia?</strong><br>
+          <strong>Conosci altri proprietari di affitti brevi in Italia?</strong><br>
           Condividi questo link con chi potrebbe trovarlo utile. Più feedback raccogliamo, migliore sarà il prodotto finale.
           <br><br>
           <strong style="color:var(--accent)">brevapp.it</strong> (prossimamente)
@@ -995,48 +995,65 @@
 
   
   // ── CONFIGURAZIONE GOOGLE APPS SCRIPT ──
-const WORKER_URL = 'https://script.google.com/macros/s/AKfycbwBetTA2U2oM-9D72y_W2nXTb3Pxu3Z9xmZRcHuz2KmDiuX4YJ-d_z6cv424aGQfyLC/exec';
+  const WORKER_URL = 'https://script.google.com/macros/s/AKfycbwBetTA2U2oM-9D72y_W2nXTb3Pxu3Z9xmZRcHuz2KmDiuX4YJ-d_z6cv424aGQfyLC/exec';
 
   function submitSurvey() {
     const email = document.getElementById('survey-email').value;
     const notes = document.getElementById('survey-notes').value;
     const btn   = document.getElementById('submit-btn');
+
     if (!email) return;
+
     btn.disabled    = true;
     btn.textContent = '⏳ Invio in corso…';
+
     const payload = {
       email,
-      q1_immobili:     answers.q1,
-      q2_gestione:     answers.q2,
-      q3_frustrazione: answers.q3,
-      q4_pagherebbe:   answers.q4,
-      note:            notes,
-      timestamp:       new Date().toISOString(),
-      source:          'landing-page'
+      q1_immobili:      answers.q1,
+      q2_gestione:      answers.q2,
+      q3_frustrazione:  answers.q3,
+      q4_pagherebbe:    answers.q4,
+      note:             notes,
+      timestamp:        new Date().toISOString(),
+      source:           'landing-page'
     };
+
+    // Tecnica iframe nascosto: evita CORS completamente.
+    // Apps Script riceve il POST standard come un form HTML.
+    // Il target="_blank su iframe silenzioso non causa navigazione visibile.
     const iframe = document.createElement('iframe');
-    iframe.name = 'hidden_submit';
+    iframe.name  = 'hidden_submit';
     iframe.style.display = 'none';
     document.body.appendChild(iframe);
+
     const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = WORKER_URL;
-    form.target = 'hidden_submit';
+    form.method  = 'POST';
+    form.action  = WORKER_URL;
+    form.target  = 'hidden_submit'; // invia nell'iframe, non nella pagina
+
+    // Campo hidden con il payload JSON
     const input = document.createElement('input');
     input.type  = 'hidden';
     input.name  = 'data';
     input.value = JSON.stringify(payload);
     form.appendChild(input);
+
     document.body.appendChild(form);
     form.submit();
+
+    // Pulizia dopo 3 secondi
     setTimeout(() => {
       document.body.removeChild(form);
       document.body.removeChild(iframe);
     }, 3000);
+
+    // Mostra thank you immediatamente (non aspettiamo risposta)
     document.querySelectorAll('.survey-page').forEach(p => p.classList.remove('active'));
     document.getElementById('thankyou').classList.add('active');
     document.getElementById('progress-bar').style.width = '100%';
   }
+
+
   // ── HERO EMAIL ──
   function handleHeroEmail(e) {
     e.preventDefault();
