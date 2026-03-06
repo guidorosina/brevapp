@@ -991,30 +991,64 @@
     document.getElementById('submit-btn').disabled = !valid;
   }
 
-  function submitSurvey() {
+  // submitSurvey() moved above
+
+  
+  // ── CONFIGURAZIONE SHEET.BEST ──
+  // Endpoint Google Sheet via Sheet.best (accetta POST diretto dal browser)
+  const WORKER_URL = 'https://api.sheetbest.com/sheets/97993122-8484-4409-b124-7e4db0007feb';
+
+  async function submitSurvey() {
     const email = document.getElementById('survey-email').value;
     const notes = document.getElementById('survey-notes').value;
+    const btn   = document.getElementById('submit-btn');
 
-    // In produzione: invia a backend / Airtable / Google Sheets via fetch()
-    // Esempio payload:
+    if (!email) return;
+
+    // UI loading
+    btn.disabled    = true;
+    btn.textContent = '⏳ Invio in corso…';
+
     const payload = {
       email,
-      q1_immobili: answers.q1,
-      q2_gestione: answers.q2,
-      q3_frustrazione: answers.q3,
-      q4_pagherebbe: answers.q4,
-      note: notes,
-      timestamp: new Date().toISOString(),
-      source: 'landing-page'
+      q1_immobili:      answers.q1,
+      q2_gestione:      answers.q2,
+      q3_frustrazione:  answers.q3,
+      q4_pagherebbe:    answers.q4,
+      note:             notes,
+      timestamp:        new Date().toISOString(),
+      source:           'landing-page'
     };
-    console.log('Survey payload:', payload);
-    // fetch('/api/survey', { method: 'POST', body: JSON.stringify(payload) ... });
 
-    // Show thank you
-    document.querySelectorAll('.survey-page').forEach(p => p.classList.remove('active'));
-    document.getElementById('thankyou').classList.add('active');
-    document.getElementById('progress-bar').style.width = '100%';
+    try {
+      const res = await fetch(WORKER_URL, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Errore server');
+      }
+
+      // Successo → mostra thank you
+      document.querySelectorAll('.survey-page').forEach(p => p.classList.remove('active'));
+      document.getElementById('thankyou').classList.add('active');
+      document.getElementById('progress-bar').style.width = '100%';
+
+    } catch (err) {
+      // Fallback: mostra comunque il thank you (non perdere lead per errori di rete)
+      console.error('Survey submit error:', err);
+      document.querySelectorAll('.survey-page').forEach(p => p.classList.remove('active'));
+      document.getElementById('thankyou').classList.add('active');
+      document.getElementById('progress-bar').style.width = '100%';
+
+      // Log silenzioso per debug (non mostrare all'utente)
+      console.warn('Dati non salvati su Sheet.best:', payload);
+    }
   }
+
 
   // ── HERO EMAIL ──
   function handleHeroEmail(e) {
