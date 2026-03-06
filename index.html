@@ -995,65 +995,48 @@
 
   
   // ── CONFIGURAZIONE GOOGLE APPS SCRIPT ──
-  const WORKER_URL = 'https://script.google.com/macros/s/AKfycbwBetTA2U2oM-9D72y_W2nXTb3Pxu3Z9xmZRcHuz2KmDiuX4YJ-d_z6cv424aGQfyLC/exec';
+const WORKER_URL = 'https://script.google.com/macros/s/AKfycbwBetTA2U2oM-9D72y_W2nXTb3Pxu3Z9xmZRcHuz2KmDiuX4YJ-d_z6cv424aGQfyLC/exec';
 
   function submitSurvey() {
     const email = document.getElementById('survey-email').value;
     const notes = document.getElementById('survey-notes').value;
     const btn   = document.getElementById('submit-btn');
-
     if (!email) return;
-
     btn.disabled    = true;
     btn.textContent = '⏳ Invio in corso…';
-
     const payload = {
       email,
-      q1_immobili:      answers.q1,
-      q2_gestione:      answers.q2,
-      q3_frustrazione:  answers.q3,
-      q4_pagherebbe:    answers.q4,
-      note:             notes,
-      timestamp:        new Date().toISOString(),
-      source:           'landing-page'
+      q1_immobili:     answers.q1,
+      q2_gestione:     answers.q2,
+      q3_frustrazione: answers.q3,
+      q4_pagherebbe:   answers.q4,
+      note:            notes,
+      timestamp:       new Date().toISOString(),
+      source:          'landing-page'
     };
-
-    // Tecnica iframe nascosto: evita CORS completamente.
-    // Apps Script riceve il POST standard come un form HTML.
-    // Il target="_blank su iframe silenzioso non causa navigazione visibile.
     const iframe = document.createElement('iframe');
-    iframe.name  = 'hidden_submit';
+    iframe.name = 'hidden_submit';
     iframe.style.display = 'none';
     document.body.appendChild(iframe);
-
     const form = document.createElement('form');
-    form.method  = 'POST';
-    form.action  = WORKER_URL;
-    form.target  = 'hidden_submit'; // invia nell'iframe, non nella pagina
-
-    // Campo hidden con il payload JSON
+    form.method = 'POST';
+    form.action = WORKER_URL;
+    form.target = 'hidden_submit';
     const input = document.createElement('input');
     input.type  = 'hidden';
     input.name  = 'data';
     input.value = JSON.stringify(payload);
     form.appendChild(input);
-
     document.body.appendChild(form);
     form.submit();
-
-    // Pulizia dopo 3 secondi
     setTimeout(() => {
       document.body.removeChild(form);
       document.body.removeChild(iframe);
     }, 3000);
-
-    // Mostra thank you immediatamente (non aspettiamo risposta)
     document.querySelectorAll('.survey-page').forEach(p => p.classList.remove('active'));
     document.getElementById('thankyou').classList.add('active');
     document.getElementById('progress-bar').style.width = '100%';
   }
-
-
   // ── HERO EMAIL ──
   function handleHeroEmail(e) {
     e.preventDefault();
